@@ -1,10 +1,17 @@
 package com.canchas.app.controler;
 import java.util.Optional;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,11 +26,19 @@ public class ClienteControler {
 	@Autowired
 	private ClienteService clienteService;
 	
+	//Evita que pasen a la base de datos campos vacios
+	@InitBinder
+	public void miBinder (WebDataBinder binder) {
+		StringTrimmerEditor recortarEspaciosBlaco = new StringTrimmerEditor(true);
+		
+		binder.registerCustomEditor(String.class, recortarEspaciosBlaco);
+	}
+	
 	//create a new cliente
 	@PostMapping
-	public ResponseEntity<?> create (@RequestBody Cliente cliente){
+	public ResponseEntity<?> create (@Valid @RequestBody Cliente cliente){
 		return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.save(cliente));
-	}
+	}	
 	
 	//read an cliente
 	@GetMapping("/{id}")
@@ -43,10 +58,10 @@ public class ClienteControler {
 		if (!cliente.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		cliente.get().setApellido(clienteDetails.getApellido());
-		cliente.get().setCelular(clienteDetails.getCelular());
-		cliente.get().setDni(clienteDetails.getDni());
 		cliente.get().setNombre(clienteDetails.getNombre());
+		cliente.get().setApellido(clienteDetails.getApellido());
+		cliente.get().setDni(clienteDetails.getDni());
+		cliente.get().setCelular(clienteDetails.getCelular());
 		return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.save(cliente.get()));
 	}
 	

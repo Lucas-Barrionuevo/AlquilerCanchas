@@ -1,8 +1,9 @@
 package com.canchas.app.entity;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,9 +16,13 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 public class Cancha {
 	@Column
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	@Column(nullable = false)
+	private int tipoDeCancha; 
+	@Column(nullable = false)
+	private double valorXHora;
 	
-	private double valor;
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "predio_id")
 	@JsonProperty(access = Access.WRITE_ONLY)
@@ -26,11 +31,19 @@ public class Cancha {
 	public Cancha() {
 		super();
 	}
-	public Cancha(int id, double valor, Predio predio) {
+	public Cancha(int id, double valorXHora, Predio predio, int tipoDeCancha) {
 		super();
 		this.id = id;
-		this.valor = valor;
+		this.tipoDeCancha = tipoDeCancha;
+		this.valorXHora = valorXHora;
 		this.predio = predio;
+	}
+	
+	public int getTipoDeCancha() {
+		return tipoDeCancha;
+	}
+	public void setTipoDeCancha(int tipoDeCancha) {
+		this.tipoDeCancha = tipoDeCancha;
 	}
 	public int getId() {
 		return id;
@@ -38,11 +51,11 @@ public class Cancha {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public double getValor() {
-		return valor;
+	public double getValorXHora() {
+		return valorXHora;
 	} 
-	public void setValor(double valor) {
-		this.valor = valor;
+	public void setValorXHora(double valorXHora) {
+		this.valorXHora = valorXHora;
 	}
 	public Predio getPredio() {
 		return predio;

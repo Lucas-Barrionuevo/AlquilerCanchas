@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table (name= "predio")
@@ -18,12 +20,14 @@ public class Predio {
 	@Column
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int idPredio;
-	
+	private int id;
+	@NotNull
+	@Size(min = 2, max = 20, message= "Campo Requerido")
 	private String zona;
 	
 	@OneToMany(mappedBy = "predio" , cascade = CascadeType.ALL)
 	private Set<Cancha> canchas = new HashSet<>();
+	
 	public Predio() {
 		super();
 	}
@@ -42,12 +46,12 @@ public class Predio {
 		this.zona = zona;
 	}
 
-	public int getIdPredio() {
-		return idPredio;
+	public int getId() {
+		return id;
 	}
 
-	public void setIdPredio(int idPredio) {
-		this.idPredio = idPredio;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public Set<Cancha> getCanchas() {

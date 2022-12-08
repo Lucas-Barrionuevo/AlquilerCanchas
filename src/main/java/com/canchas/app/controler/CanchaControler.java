@@ -1,10 +1,5 @@
 package com.canchas.app.controler;
-
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.canchas.app.entity.Cancha;
+import com.canchas.app.entity.Cliente;
 import com.canchas.app.entity.Predio;
 import com.canchas.app.service.CanchaService;
 import com.canchas.app.service.PredioService;
@@ -32,7 +28,7 @@ public class CanchaControler {
 	//create a new cancha
 	@PostMapping
 	public ResponseEntity<?> create (@RequestBody Cancha cancha){
-		Optional <Predio> predioOp = predioService.findById(cancha.getPredio().getIdPredio());
+		Optional <Predio> predioOp = predioService.findById(cancha.getPredio().getId());
 		if (!predioOp.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
@@ -42,7 +38,7 @@ public class CanchaControler {
 	// update an cancha
 	@PutMapping("/{id}")
 	public ResponseEntity<?> update(@RequestBody Cancha canchaDetails, @PathVariable(value = "id") int canchaId){
-		Optional <Predio> predioOp = predioService.findById(canchaDetails.getPredio().getIdPredio());
+		Optional <Predio> predioOp = predioService.findById(canchaDetails.getPredio().getId());
 		if (!predioOp.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
@@ -50,8 +46,7 @@ public class CanchaControler {
 		if (!cancha.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		cancha.get().setValor(canchaDetails.getValor());
-		cancha.get().setId(canchaDetails.getId());
+		cancha.get().setValorXHora(canchaDetails.getValorXHora());
 		cancha.get().setPredio(canchaDetails.getPredio());
 		return ResponseEntity.status(HttpStatus.CREATED).body(canchaService.save(cancha.get()));
 	}
@@ -65,12 +60,14 @@ public class CanchaControler {
 		canchaService.deleteById(canchaId);
 		return ResponseEntity.ok().build();
 	}
-	//Read cancha for predio
-	/*	@GetMapping("/id")
-		public List<Cancha> canchaForPredio(@PathVariable(value = "id") int predioId){
-			List<Cancha> canchas = StreamSupport
-					.stream(canchaService.canchasPorPredio(predioId).spliterator(), false)
-					.collect(Collectors.toList());
-			return canchas;
-		}*/
+	@GetMapping("/{id}")
+	public ResponseEntity<?> predioPorCancha (@PathVariable (value= "id") int predioId){
+		Optional <Predio> predioOp = predioService.findById(predioId);
+		if (!predioOp.isPresent()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(predioOp);
+		
+		
+	}
 }

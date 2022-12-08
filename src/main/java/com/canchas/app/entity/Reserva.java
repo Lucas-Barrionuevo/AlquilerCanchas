@@ -1,5 +1,8 @@
 package com.canchas.app.entity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,6 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
@@ -21,39 +28,44 @@ public class Reserva {
 	private int idReserva;
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "cancha_id")
+	@JoinColumn(name = "idCancha")
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Cancha canchaReservada;
-	
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "idPredio")
-	@JsonProperty(access = Access.WRITE_ONLY)
-	private Predio predioReservado;
+	@DateTimeFormat (pattern = "dd/mm/yyyy  hh:mm")
+	private LocalDateTime fechaHora;
 	
 	private double hsReservadas;
 	
-	private double dia;
+	private double valor; 
 	
-	private double mes;
+	private boolean cliente;
 	
-	private double año;
-	
-	public Reserva(int idReserva, Cancha canchaReservada, double hsReservadas, double dia, double mes, double año) {
+	public Reserva() {
 		super();
-		this.idReserva = idReserva;
-		this.canchaReservada = canchaReservada;
-		this.hsReservadas = hsReservadas;
-		this.dia = dia;
-		this.mes = mes;
-		this.año = año;
-	}
-	
-	public Predio getPredioReservado() {
-		return predioReservado;
 	}
 
-	public void setPredioReservado(Predio predioReservado) {
-		this.predioReservado = predioReservado;
+	public Reserva( Cancha canchaReservada, double hsReservadas, LocalDateTime fechaHora, boolean cliente, double valor) {
+		super();
+		this.canchaReservada = canchaReservada;
+		this.fechaHora = fechaHora;
+		this.valor = valor;
+		this.cliente = cliente;
+	}
+
+	public boolean getCliente() {
+		return cliente;
+	}
+
+	public void setCliente(boolean cliente) {
+		this.cliente = cliente;
+	}
+
+	public double getValor() {
+		return valor;
+	}
+
+	public void setValor(double valor) {
+		this.valor = valor;
 	}
 
 	public int getIdReserva() {
@@ -68,30 +80,21 @@ public class Reserva {
 	public void setCanchaReservada(Cancha canchaReservada) {
 		this.canchaReservada = canchaReservada;
 	}
+
 	public double getHsReservadas() {
 		return hsReservadas;
 	}
+
 	public void setHsReservadas(double hsReservadas) {
 		this.hsReservadas = hsReservadas;
 	}
-	public double getDia() {
-		return dia;
+
+	public LocalDateTime getFechaHora() {
+		return fechaHora;
 	}
-	public void setDia(double dia) {
-		this.dia = dia;
+
+	public void setFechaHora(LocalDateTime fechaHora) {
+		this.fechaHora = fechaHora;
 	}
-	public double getMes() {
-		return mes;
-	}
-	public void setMes(double mes) {
-		this.mes = mes;
-	}
-	public double getAño() {
-		return año;
-	}
-	public void setAño(double año) {
-		this.año = año;
-	}
-	
 	
 }

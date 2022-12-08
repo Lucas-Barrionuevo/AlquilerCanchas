@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.canchas.app.entity.Cancha;
-import com.canchas.app.entity.Predio;
 import com.canchas.app.entity.Reserva;
 import com.canchas.app.service.CanchaService;
-import com.canchas.app.service.PredioService;
 import com.canchas.app.service.ReservaService;
 
 @RestController
@@ -26,9 +23,7 @@ public class ReservaControler {
 	private ReservaService reservaService;
 	@Autowired
 	private CanchaService canchaService;
-	@Autowired
-	private PredioService predioService;
-	
+
 	//create a new reserva
 	@PostMapping
 	public ResponseEntity<?> create (@RequestBody Reserva reserva){
@@ -36,11 +31,15 @@ public class ReservaControler {
 		if(!canchaOp.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		Optional<Predio> predioOp = predioService.findById(reserva.getPredioReservado().getIdPredio());
-		if(!predioOp.isPresent()) {
+		if (reservaService.existeReserva(reserva.getFechaHora(), canchaOp.get())) {
 			return ResponseEntity.notFound().build();
 		}
+		reserva.setValor(reserva.getHsReservadas() * canchaOp.get().getValorXHora());
+		if(reserva.getCliente() == true) {
+			reserva.setValor(reserva.getValor() * 0.75);
+		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(reservaService.save(reserva));
+		
 	}
 	
 	//read an reserva
@@ -53,13 +52,9 @@ public class ReservaControler {
 		return ResponseEntity.ok(oReserva);
 	}
 	
-	// update an user
+	// update an reserva
 	@PutMapping("/{id}")
-	public ResponseEntity<?> edit(@RequestBody Reserva reservaDetails, @PathVariable(value = "id") int reservarId){
-		Optional<Predio> predioOp = predioService.findById(reservaDetails.getPredioReservado().getIdPredio());
-		if(!predioOp.isPresent()) {
-			return ResponseEntity.notFound().build();
-		}
+	public ResponseEntity<?> update(@RequestBody Reserva reservaDetails, @PathVariable(value = "id") int reservarId){
 		Optional<Cancha> canchaOp = canchaService.findById(reservaDetails.getCanchaReservada().getId());
 		if(!canchaOp.isPresent()) {
 			return ResponseEntity.notFound().build();
@@ -68,18 +63,21 @@ public class ReservaControler {
 		if (!reserva.isPresent()) {
 			return ResponseEntity.notFound().build();
 		}
-		reserva.get().setAño(reservaDetails.getAño());
-		reserva.get().setPredioReservado(reservaDetails.getPredioReservado());
+		if (reservaService.existeReserva(reservaDetails.getFechaHora(), canchaOp.get())) {
+			return ResponseEntity.notFound().build();
+		}
 		reserva.get().setCanchaReservada(reservaDetails.getCanchaReservada());
-		reserva.get().setDia(reservaDetails.getDia());
 		reserva.get().setHsReservadas(reservaDetails.getHsReservadas());
-		reserva.get().setIdReserva(reservaDetails.getIdReserva());
-		reserva.get().setMes(reservaDetails.getMes());
-		reservaService.save(reserva.get());
+		reserva.get().setCliente(reservaDetails.getCliente());
+		reserva.get().setFechaHora(reservaDetails.getFechaHora());
+		reserva.get().setValor(reservaDetails.getHsReservadas() * canchaOp.get().getValorXHora() );
+		if(reserva.get().getCliente() == true) {
+			reserva.get().setValor((reserva.get().getValor() * 0.75));
+		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(reservaService.save(reserva.get()));
 	}
 	
-	//Delete an user 
+	//Delete an reserva 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> delete(@PathVariable(value = "id") int reservaId){
 		if(!reservaService.findById(reservaId).isPresent()) {
